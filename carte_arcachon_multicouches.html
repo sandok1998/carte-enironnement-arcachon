@@ -1,0 +1,92 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Carte environnement et connectivité – Bassin d’Arcachon</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+  <style>
+    #map { height: 100vh; }
+    .legend {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      background: white;
+      padding: 10px;
+      z-index: 1000;
+      border-radius: 5px;
+      font-family: sans-serif;
+      box-shadow: 0 0 5px rgba(0,0,0,0.3);
+    }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+  <div class="legend">
+    <strong>Légende</strong><br>
+    📶 Zones d’ombre / WiFi<br>
+    🌳 Espèces protégées<br>
+    🔥 Îlots de chaleur<br>
+    🌊 Plages Pavillon Bleu<br>
+    🌧️ Zones inondables
+  </div>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    const map = L.map('map').setView([44.65, -1.15], 11);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', {
+      maxZoom: 18,
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Couche 1 – Zones d’ombre réseau mobile
+    const networkLayer = L.layerGroup([
+      L.circle([44.63, -1.14], {radius: 1000, color: 'gray'}).bindPopup("Zone d’ombre réseau"),
+      L.circle([44.68, -1.05], {radius: 800, color: 'gray'}).bindPopup("Zone blanche mobile")
+    ]);
+
+    // Couche 2 – Espèces protégées ou arbres remarquables
+    const speciesLayer = L.layerGroup([
+      L.marker([44.648, -1.185]).bindPopup("🌳 Chêne centenaire classé"),
+      L.marker([44.72, -1.1]).bindPopup("🦉 Zone de nidification protégée")
+    ]);
+
+    // Couche 3 – Îlots de chaleur urbains
+    const heatLayer = L.layerGroup([
+      L.circle([44.66, -1.155], {radius: 600, color: 'red'}).bindPopup("Îlot de chaleur – zone bétonnée"),
+      L.circle([44.64, -1.07], {radius: 700, color: 'orange'}).bindPopup("Îlot de chaleur – parking urbain")
+    ]);
+
+    // Couche 4 – Plages Pavillon Bleu
+    const beachLayer = L.layerGroup([
+      L.marker([44.66, -1.15]).bindPopup("🌊 Plage Thiers – Pavillon Bleu"),
+      L.marker([44.586, -1.155]).bindPopup("🌊 Plage de la Corniche – Pavillon Bleu")
+    ]);
+
+    // Couche 5 – Zones inondables
+    const floodLayer = L.layerGroup([
+      L.polygon([[44.65, -1.10], [44.65, -1.08], [44.63, -1.08], [44.63, -1.10]], {
+        color: 'blue', fillOpacity: 0.3
+      }).bindPopup("Zone potentiellement inondable")
+    ]);
+
+    const overlays = {
+      "📶 Zones d’ombre / WiFi": networkLayer,
+      "🌳 Espèces protégées": speciesLayer,
+      "🔥 Îlots de chaleur": heatLayer,
+      "🌊 Plages Pavillon Bleu": beachLayer,
+      "🌧️ Zones inondables": floodLayer
+    };
+
+    L.control.layers(null, overlays, {collapsed: false}).addTo(map);
+
+    // Afficher toutes les couches par défaut
+    networkLayer.addTo(map);
+    speciesLayer.addTo(map);
+    heatLayer.addTo(map);
+    beachLayer.addTo(map);
+    floodLayer.addTo(map);
+  </script>
+</body>
+</html>
